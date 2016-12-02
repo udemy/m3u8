@@ -464,6 +464,14 @@ class Playlist(BasePathMixin):
     More info: http://tools.ietf.org/html/draft-pantos-http-live-streaming-07#section-3.3.10
     '''
 
+    bandwidth_approximation = {
+        360: 663000,
+        480: 1006000,
+        720: 2068000,
+        1080: 3659000,
+        None: 1508000
+    }
+
     def __init__(self, uri, stream_info, media, base_uri):
         self.uri = uri
         self.base_uri = base_uri
@@ -475,9 +483,12 @@ class Playlist(BasePathMixin):
             resolution_pair = (int(values[0]), int(values[1]))
         else:
             resolution_pair = None
-
+        if stream_info.get('bandwidth'):
+            bandwidth = stream_info.get('bandwidth')
+        else:
+            bandwidth = self.bandwidth_approximation.get(resolution_pair[1])
         self.stream_info = StreamInfo(
-            bandwidth=stream_info['bandwidth'],
+            bandwidth=bandwidth,
             average_bandwidth=stream_info.get('average_bandwidth'),
             program_id=stream_info.get('program_id'),
             resolution=resolution_pair,
